@@ -9,13 +9,20 @@ st.set_page_config(page_title="Portuguese Bank Prediction")
 st.title("🏦 Portuguese Bank Marketing Prediction")
 st.write("Predict whether a customer will subscribe to a term deposit")
 
-# Load dataset
-df = pd.read_csv("bank.csv")
+# Load dataset (IMPORTANT: delimiter=';')
+df = pd.read_csv("bank-full.csv", delimiter=';')
 
-# Encode categorical columns
+# Show columns (debug – you can remove later)
+st.write("Columns:", df.columns)
+
+# Encode target column
+df["y"] = df["y"].map({"yes": 1, "no": 0})
+
+# Encode categorical features
 le = LabelEncoder()
 for col in df.select_dtypes(include="object").columns:
-    df[col] = le.fit_transform(df[col])
+    if col != "y":
+        df[col] = le.fit_transform(df[col])
 
 X = df.drop("y", axis=1)
 y = df["y"]
@@ -40,9 +47,12 @@ previous = st.slider("Previous Contacts", 0, 50, 0)
 housing = 1 if housing == "yes" else 0
 loan = 1 if loan == "yes" else 0
 
-input_data = pd.DataFrame([[age, balance, housing, loan, campaign, previous]],
-                          columns=["age", "balance", "housing", "loan", "campaign", "previous"])
+input_data = pd.DataFrame(
+    [[age, balance, housing, loan, campaign, previous]],
+    columns=["age", "balance", "housing", "loan", "campaign", "previous"]
+)
 
+import streamlit as st
 if st.button("Predict"):
     prediction = model.predict(input_data)[0]
     prob = model.predict_proba(input_data)[0][1] * 100
