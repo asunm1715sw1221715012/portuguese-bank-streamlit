@@ -1,0 +1,2 @@
+import pickle
+pickle.dump(pipeline, open("model.pkl", "wb"))
